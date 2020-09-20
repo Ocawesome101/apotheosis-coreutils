@@ -80,7 +80,6 @@ local function scan(s, a, t)
     end
     if not ios then
       ios = vt100.new(gpu, screen)
-      ios = require("buffer").new(ios, "rw")
       ios.tty = "tty"..ttyn
       gpus[gpu].bound = screen
       screens[screen].bound = gpu
@@ -104,7 +103,7 @@ event.register("component_removed", scan)
 
 local ok, err = loadfile("/bin/login.lua")
 if not ok then
-  io.stderr:write(err,"\n")
+  io.write(err,"\n")
 else
   require("process").spawn(ok, "login")
 end
