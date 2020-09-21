@@ -1,5 +1,6 @@
 -- sh - basic shell --
 
+local fs = require("filesystem")
 local pipe = require("pipe")
 local process = require("process")
 
@@ -19,7 +20,11 @@ local pgsub = {
 }
 
 -- TODO: move a bunch of this to a common library
-local builtins = {}
+local builtins = {
+  exit = function()
+    os.exit()
+  end
+}
 
 local function parse_prompt(prompt)
   local ret = prompt
@@ -86,10 +91,30 @@ local function setup(str)
   return ret
 end
 
-local function resolve()
+local function concat(...)
+  return "/" .. (table.concat(table.pack(...), "/"):gsub("[/\\]+", "/"))
 end
 
--- this should be simple, right? just load and spawn the functions
+local function resolve(cmd)
+  if fs.exists(cmd) then
+    return cmd
+  end
+  if fs.exists(cmd..".lua") then
+    return cmd..".lua"
+  end
+  for path in os.getenv("PATH"):gmatch("[^:]+") do
+    local check = concat(path, cmd)
+    if fs.exists(check) then
+      return check
+    end
+    if fs.exists(check..".lua") then
+      return check..".lua"
+    end
+  end
+  return nil, cmd..": command not found"
+end
+
+-- this should be simple, right? just loadfile() and spawn functions
 local function execute(str)
   local exec, err = setup(str)
   if not exec then
@@ -120,6 +145,7 @@ local function execute(str)
       local ok, ret = pcall(func, table.unpack(ex.cmd, 2))
       if not ok and ret then
         errno = ret
+        io.stderr:write(ret,"\n")
         for i=1, #pids, 1 do
           process.signal(pids[i], process.signals.SIGKILL)
         end
@@ -127,17 +153,21 @@ local function execute(str)
     end
     table.insert(pids, process.spawn(f, table.concat(ex.cmd, " ")))
   end
-  while not errno do
-    computer.pushSignal("sh_dummy")
-    coroutine.yield()
+  require("computer").pushSignal("sh_dummy")
+  while true do
+    print("SHCHECK")
     local run = false
     for k, pid in pairs(pids) do
       if process.info(pid) then
         run = true
       end
     end
-    if not run then break end
+    print("SHYIELD")
+    print(coroutine.yield())
+    print("SHRES")
+    if errno or not run then break end
   end
+  print("SHDONE")
   if errno then
     return nil, errno
   end
@@ -148,8 +178,8 @@ os.setenv("PS1", os.getenv("PS1") or "\\s-\\v$ ")
 
 while true do
   io.write(parse_prompt(os.getenv("PS1")))
-  local input = io.read("l")
-  local ok, err = execute(input)
+  local input, ierr = io.read("l")
+  local ok, err = execute(input or "")
   if not ok then
     print(err)
   end
