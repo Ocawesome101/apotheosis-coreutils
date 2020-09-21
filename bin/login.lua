@@ -1,5 +1,6 @@
 -- login --
 
+local users = require("users")
 local hostname = require("hostname")
 
 while true do
@@ -7,15 +8,32 @@ while true do
   print(string.format("\n%s %s\n", _KINFO.name, _KINFO.version))
   local hnames = hostname.get()
   io.write((hnames.minitel or hnames.gert or hnames.standard or "localhost") .. " login: ")
-  local name = io.read()
+  local name = io.read("l")
   io.write("password: \27[8m")
-  local pass = io.read()
+  local pass = io.read("l")
   io.write("\27[0m")
-
-  local ok, err = loadfile("/bin/sh.lua")
+  local uid, ok, err -- goto scoping
+  do
+    uid, err = users.getuid(name)
+    if not uid then
+      print(err)
+      goto cont
+    end
+    local dat, ret = users.checkAuth(uid, pass)
+    if not dat then
+      print(ret)
+      goto cont
+    end
+  end
+  ok, err = loadfile("/bin/sh.lua")
   if not ok then
     print("error in shell: " .. err)
   else
+    local done, ret = users.spawnAs(uid, pass, ok, "/bin/sh.lua")
+    if not done then
+      print("error in shell: " .. ret)
+    end
   end
+  ::cont::
   os.sleep(5)
 end

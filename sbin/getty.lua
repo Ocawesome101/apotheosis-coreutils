@@ -101,6 +101,9 @@ end
 event.register("component_added", scan)
 event.register("component_removed", scan)
 
+io.input().tty = "tty0"
+ttys[ttyn] = {stream = io.input(), gpu = bgpu, screen = bscr}
+
 local ok, err = loadfile("/bin/login.lua")
 if not ok then
   io.write(err,"\n")
@@ -109,5 +112,8 @@ else
 end
 
 while true do
-  coroutine.yield()
+  local sig = table.pack(coroutine.yield())
+  if sig[1] == "thread_died" then
+    print(sig[4])
+  end
 end
