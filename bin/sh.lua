@@ -3,6 +3,7 @@
 local fs = require("filesystem")
 local pipe = require("pipe")
 local process = require("process")
+local computer = require("computer")
 
 os.setenv("PWD", os.getenv("PWD") or "/")
 os.setenv("PATH", os.getenv("PATH") or "/bin:/sbin")
@@ -153,7 +154,7 @@ local function execute(str)
     end
     table.insert(pids, process.spawn(f, table.concat(ex.cmd, " ")))
   end
-  require("computer").pushSignal("sh_dummy")
+  computer.pushSignal("sh_dummy")
   while true do
     print("SHCHECK")
     local run = false
@@ -179,8 +180,11 @@ os.setenv("PS1", os.getenv("PS1") or "\\s-\\v$ ")
 while true do
   io.write(parse_prompt(os.getenv("PS1")))
   local input, ierr = io.read("l")
-  local ok, err = execute(input or "")
-  if not ok then
-    print(err)
+  if ierr then print(ierr) end
+  if input then
+    local ok, err = execute(input)
+    if not ok then
+      print(err)
+    end
   end
 end
