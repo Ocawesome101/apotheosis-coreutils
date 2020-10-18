@@ -11,11 +11,13 @@ Usage: ls [OPTION]... [FILE]...
 List information about FILEs (the current directory by default).
 Sort options alphabetically.
 ]])
+  os.exit(0)
 end
 
 local dir
 local pwd = os.getenv("PWD")
 if #args == 0 then dir = pwd end
+if not dir then dir = pwd or "/" end
 
 local files = fs.list(dir)
 table.sort(files)
