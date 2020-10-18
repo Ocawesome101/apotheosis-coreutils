@@ -156,19 +156,15 @@ local function execute(str)
   end
   computer.pushSignal("sh_dummy")
   while true do
-    print("SHCHECK")
     local run = false
     for k, pid in pairs(pids) do
       if process.info(pid) then
         run = true
       end
     end
-    print("SHYIELD")
-    print(coroutine.yield())
-    print("SHRES")
+    coroutine.yield()
     if errno or not run then break end
   end
-  print("SHDONE")
   if errno then
     return nil, errno
   end
@@ -180,11 +176,11 @@ os.setenv("PS1", os.getenv("PS1") or "\\s-\\v$ ")
 while true do
   io.write(parse_prompt(os.getenv("PS1")))
   local input, ierr = io.read("l")
-  if ierr then print(ierr) end
+  if not input and ierr then print(ierr) end
   if input then
     local ok, err = execute(input)
     if not ok then
-      print(err)
+    --  print(err)
     end
   end
 end
