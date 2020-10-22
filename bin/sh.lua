@@ -2,6 +2,7 @@
 
 local fs = require("filesystem")
 local pipe = require("pipe")
+local paths = require("libpath")
 local process = require("process")
 local computer = require("computer")
 
@@ -92,23 +93,19 @@ local function setup(str)
   return ret
 end
 
-local function concat(...)
-  return "/" .. (table.concat(table.pack(...), "/"):gsub("[/\\]+", "/"))
-end
-
 local function resolve(cmd)
-  if fs.exists(cmd) then
+  if fs.stat(cmd) then
     return cmd
   end
-  if fs.exists(cmd..".lua") then
+  if fs.stat(cmd..".lua") then
     return cmd..".lua"
   end
   for path in os.getenv("PATH"):gmatch("[^:]+") do
-    local check = concat(path, cmd)
-    if fs.exists(check) then
+    local check = paths.concat(path, cmd)
+    if fs.stat(check) then
       return check
     end
-    if fs.exists(check..".lua") then
+    if fs.stat(check..".lua") then
       return check..".lua"
     end
   end
