@@ -6,6 +6,7 @@ local pipe = require("pipe")
 local paths = require("libpath")
 local process = require("process")
 local computer = require("computer")
+local readline = require("readline")
 
 print(motd.random())
 
@@ -175,7 +176,7 @@ os.setenv("PS1", os.getenv("PS1") or "\\s-\\v$ ")
 
 while true do
   io.write(parse_prompt(os.getenv("PS1")))
-  local input, ierr = io.read("l")
+  local input, ierr = readline()
   if not input and ierr then print(ierr) end
   if input then
     local ok, err = execute(input)
