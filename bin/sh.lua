@@ -1,10 +1,13 @@
 -- sh - basic shell --
 
 local fs = require("filesystem")
+local motd = require("motd")
 local pipe = require("pipe")
 local paths = require("libpath")
 local process = require("process")
 local computer = require("computer")
+
+print(motd.random())
 
 os.setenv("PWD", os.getenv("PWD") or "/")
 os.setenv("PATH", os.getenv("PATH") or "/bin:/sbin")
