@@ -14,7 +14,7 @@ while true do
   io.write("\27[0m")
   local uid, ok, err -- goto scoping
   do
-    uid, err = users.getuid(name)
+    uid, err = users.idByName(name)
     if not uid then
       print(err)
       goto cont

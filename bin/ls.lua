@@ -4,6 +4,8 @@ local fs = require("filesystem")
 local argp = require("libargp")
 local libvt = require("libvt")
 local paths = require("libpath")
+local users = require("users")
+local permutil = require("permutil")
 
 local args, opts = argp.parse(...)
 
@@ -43,9 +45,14 @@ local maxN = 1
 if not opts.l then
   -- find the longest file entry
   for i=1, #files, 1 do
+    if files[i]:sub(1,1) == "." and not opts.a then
+      files[i] = nil
+      goto cont
+    end
     if #files[i] > maxN then
       maxN = #files[i]
     end
+    ::cont::
   end
   maxN = maxN + 2
 end
@@ -53,6 +60,7 @@ if maxN >= w then
   opts["1"] = true
 end
 
+local ln = ""
 for i=1, #files, 1 do
   if opts.l then
     local full = paths.concat(dir, files[i] or "")
@@ -61,6 +69,20 @@ for i=1, #files, 1 do
       print(err)
       os.exit(1)
     end
+    formatted = string.format("%s\n%s%s %s %s %8d %s %s",
+                              formatted,
+                              info.isDirectory and "d" or "-",
+                              permutil.tostring(info.permissions),
+                              users.userByID(info.owner),
+                              users.groupByID(info.group),
+                              info.size,
+                              os.date("%b %e %H:%M"),
+                              files[i])
+  else
   end
 end
+
+print(formatted)
+
+os.exit(0)
 

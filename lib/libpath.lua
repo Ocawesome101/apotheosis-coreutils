@@ -7,7 +7,7 @@ function lib.concat(...)
   for i=1, args.n, 1 do
     checkArg(i, args[i], "string")
   end
-  return "/" .. (table.concat(args, "/"):gsub("[^/\\]+", "/"))
+  return "/" .. (table.concat(args, "/"):gsub("([/\\]+)", "/"))
 end
 
 return lib

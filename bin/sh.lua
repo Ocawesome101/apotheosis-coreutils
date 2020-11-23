@@ -26,11 +26,16 @@ local pgsub = {
 }
 
 -- TODO: move a bunch of this to a common library
+local exit = false
 local builtins = {
-  exit = function()
-    os.exit()
+  exit = function(n)
+    exit = tonumber(n) or true
   end
 }
+
+local function sherr(e)
+  io.stderr:write(e,"\n")
+end
 
 local function parse_prompt(prompt)
   local ret = prompt
@@ -102,6 +107,7 @@ local function resolve(cmd)
     return cmd
   end
   if fs.stat(cmd..".lua") then
+    print(".lua")
     return cmd..".lua"
   end
   for path in os.getenv("PATH"):gmatch("[^:]+") do
@@ -113,7 +119,8 @@ local function resolve(cmd)
       return check..".lua"
     end
   end
-  return nil, cmd..": command not found"
+  sherr(cmd..": command not found")
+  return nil
 end
 
 -- this should be simple, right? just loadfile() and spawn functions
@@ -128,27 +135,36 @@ local function execute(str)
     local func
     local ex = exec[i]
     local cmd = ex.cmd[1]
+    local shEnv = false
     if builtins[cmd] then
+      shEnv = true
       func = builtins[cmd]
     else
       local path, err = resolve(cmd)
       if not path then
-        return nil, err
+        sherr(err)
+        return nil
       end
       local ok, err = loadfile(path)
       if not ok then
-        return nil, err
+        sherr(err)
+        return nil
       end
       func = ok
     end
     local f = function()
       io.input(ex.i)
       io.output(ex.o)
+      if shEnv then
+        getmetatable(process.info().env).__newindex = function(k,v)
+          getmetatable(process.info().env).__index[k] = v
+        end
+      end
       local ok, ret = pcall(func, table.unpack(ex.cmd, 2))
-      if not ok and ret then
+      if (not ok) and ret then
         errno = ret
         io.stderr:write(ret,"\n")
-        for i=1, #pids, 1 do
+        for i, _ in pairs(pids) do
           process.signal(pids[i], process.signals.SIGKILL)
         end
       end
@@ -176,12 +192,8 @@ os.setenv("PS1", os.getenv("PS1") or "\\s-\\v$ ")
 
 while true do
   io.write(parse_prompt(os.getenv("PS1")))
-  local input, ierr = readline()
-  if not input and ierr then print(ierr) end
+  local input = io.read("l")
   if input then
-    local ok, err = execute(input)
-    if not ok then
-    --  print(err)
-    end
+    execute(input)
   end
 end
