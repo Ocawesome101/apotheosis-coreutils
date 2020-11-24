@@ -4,6 +4,7 @@ local computer = require("computer")
 
 local args, opts = require("libargp").parse(...)
 
+collectgarbage()
 local total = computer.totalMemory()
 local free = computer.freeMemory()
 local used = total - free
