@@ -12,15 +12,19 @@ function lib.concat(...)
   return "/" .. (table.concat(args, "/"):gsub("([/\\]+)", "/"))
 end
 
-function lib.resolve(path)
+function lib.resolve(path, lenient)
   checkArg(1, path, "string")
+  checkArg(1, lenient, "boolean", "nil")
   if path:sub(1,1) ~= "/" then
     local pwd = os.getenv("PWD")
     local try = lib.concat(pwd, path)
-    if fs.stat(try) then
+    if fs.stat(try) or lenient then
       return try
     end
   else
+    return path
+  end
+  if lenient then
     return path
   end
   return nil, path..": file not found"
