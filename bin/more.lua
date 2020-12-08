@@ -6,7 +6,7 @@ local vt = require("libvt")
 
 local args, opts = shell.parse(...)
 
-if #args == 0 then
+if #args == 0 or opts.help then
   io.stderr:write("usage: more FILE")
   os.exit(1)
 end
