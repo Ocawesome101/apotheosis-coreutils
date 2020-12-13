@@ -12,12 +12,12 @@ end
 for i, file in ipairs(args) do
   local ok, err = pathutil.resolve(file)
   if not ok then
-    print("cat: "..err)
+    io.stderr:write("cat: ", err, "\n")
     os.exit(1)
   end
   local handle, err = io.open(ok, "r")
   if not handle then
-    print("cat: "..err)
+    io.stderr:write("cat: ", err, "\n")
     os.exit(1)
   end
   -- default buffer size is 512, this might be too small

@@ -7,10 +7,11 @@ local libvt = require("libvt")
 local args, opts = argp.parse(...)
 
 if opts.help then
-  print([[
+  io.stderr:write([[
 Usage: fmt [OPTIONS]... [FILE]
 Basic text formatting utility.  See fmt(1) and
-fmt(7).]])
+fmt(7).
+]])
   os.exit(0)
 end
 

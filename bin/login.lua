@@ -1,7 +1,7 @@
 -- login --
 
-if os.getenv("UID") ~= 0 then
-  io.stderr:write("cannot function when non-root\b")
+if tonumber(os.getenv("UID")) ~= 0 then
+  io.stderr:write("login: cannot function when non-root!\n")
   os.exit(255)
 end
 
