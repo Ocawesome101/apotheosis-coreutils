@@ -6,7 +6,9 @@ local pathutil = require("libpath")
 local args, opts = argp.parse(...)
 
 if #args == 0 then
-  os.exit(0)
+  while true do
+    io.write(io.read())
+  end
 end
 
 for i, file in ipairs(args) do

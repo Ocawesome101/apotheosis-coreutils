@@ -12,6 +12,7 @@ Usage: genfstab [OPTION]...
 Generates an fstab.  Optionally saves it to
 /etc/fstab.
 ]])
+  os.exit(0)
 end
 
 if users.user() ~= 0 then

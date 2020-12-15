@@ -10,7 +10,7 @@ if #args == 0 or opts.help then
   io.stderr:write([[
 Usage: mkdir [OPTION].. DIRECTORY...
 Create the DIRECTORY(ies), if they do not already exist.\n]])
-  os.exit()
+  os.exit(0)
 end
 
 for i=1, #args, 1 do

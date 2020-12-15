@@ -17,9 +17,10 @@ end
 local sections = {1,8,3,0,2,5,4,9,6,7}
 
 local function show(file)
-  --os.execute("fmt "..file.." > /temp_formatted_manpage")
-  --os.execute(pager.." /temp_formatted_manpage")
-  --fs.remove("/temp_formatted_manpage")
+  --[[
+  os.execute("fmt "..file.." > /temp_formatted_manpage")
+  os.execute(pager.." /temp_formatted_manpage")
+  fs.remove("/temp_formatted_manpage")--]]
   os.execute(string.format("fmt %s | %s", file, pager))
 end
 

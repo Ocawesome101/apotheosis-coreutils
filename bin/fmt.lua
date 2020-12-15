@@ -55,4 +55,8 @@ end
 
 io.write("\27[39m\n")
 
+if not io.output().tty then
+  io.output():close()
+end
+
 os.exit(0)
