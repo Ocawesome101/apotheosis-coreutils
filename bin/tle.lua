@@ -125,6 +125,7 @@ local function truncate_name(n, bn)
   if #n > 16 then
     n = "..." .. (n:sub(-13))
   end
+  if buffers[bn].ext then n = n .. "(" .. buffers[bn].ext .. ")" end
   if buffers[bn].unsaved then n = n .. "*" end
   return n
 end
