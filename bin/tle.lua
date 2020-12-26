@@ -408,6 +408,9 @@ commands = {
     buffers[cbuf].highlighter = try_get_highlighter()
     buffers[cbuf].cache = {}
   end,
+  h = function()
+    insert_character("\8")
+  end,
   m = function() -- this is how we insert a newline - ^M == "\n"
     insert_character("\n")
   end,
