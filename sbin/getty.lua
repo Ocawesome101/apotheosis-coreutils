@@ -19,7 +19,7 @@ end
 
 while true do
   local sig = table.pack(coroutine.yield())
-  if sig[1] == "process_died" then
+  if sig[1] == "process_died" and sig[4] then
     print(sig[4])
   end
 end
